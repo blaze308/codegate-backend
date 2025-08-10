@@ -1,6 +1,5 @@
 import { Router, Request, Response } from "express";
 import QRCode from "qrcode";
-import sharp from "sharp";
 import {
   validateQRRequest,
   validateBatchRequest,

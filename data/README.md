@@ -6,11 +6,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express.js](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
 ![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-![Jest](https://img.shields.io/badge/Jest-323330?style=for-the-badge&logo=Jest&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 
 **A complete events and ticketing system with QR code integration**
 
@@ -118,7 +114,7 @@ EVENT DAY → GUESTS SCAN TICKET QR → AUTOMATIC CHECK-IN → PARTY! 🎉
 ### Prerequisites
 
 - **Node.js** 18+
-- **Supabase Account** - Free PostgreSQL database with built-in features
+- **PostgreSQL** database
 - **npm** or **yarn**
 
 ### Installation
@@ -131,7 +127,7 @@ npm install
 
 # Set up environment variables
 cp env.example .env
-# Edit .env with your Supabase database URL
+# Edit .env with your database credentials
 
 # Set up the database
 npx prisma migrate deploy
@@ -142,62 +138,6 @@ npm run dev
 ```
 
 **🌐 Server runs at:** `http://localhost:3000`
-
----
-
-## 🛠️ Tech Stack & Tools
-
-### Backend & API
-
-- **⚡ Runtime**: Node.js 18+ with TypeScript
-- **🚀 Framework**: Express.js for REST API
-- **🗄️ Database**: Supabase (PostgreSQL) - Backend-as-a-Service
-- **🔄 ORM**: Prisma - Type-safe database client
-- **🔐 Authentication**: JWT (JSON Web Tokens)
-- **📱 QR Codes**: qrcode library for generation
-- **🛡️ Security**: Helmet.js + CORS + Rate Limiting
-- **✅ Testing**: Jest with Supertest
-- **📝 Validation**: Joi schema validation
-
-### Frontend (Planned)
-
-- **⚛️ Web App**: React.js with TypeScript
-- **📱 Mobile App**: Flutter for iOS & Android
-
-### Development & Deployment
-
-- **🧪 Testing**: Jest + TypeScript
-- **📦 Package Manager**: npm
-- **🔄 Development**: tsx for hot reloading
-- **🚀 Deployment**: Render (with Supabase backend)
-- **📝 Code Quality**: ESLint + TypeScript strict mode
-
-### Key Libraries Used
-
-```json
-{
-  "production": {
-    "express": "REST API framework",
-    "prisma": "Database ORM with type safety",
-    "qrcode": "QR code generation (no canvas/sharp needed)",
-    "jsonwebtoken": "JWT authentication",
-    "helmet": "Security headers",
-    "cors": "Cross-origin resource sharing",
-    "express-rate-limit": "API rate limiting",
-    "joi": "Request validation",
-    "bcryptjs": "Password hashing",
-    "uuid": "Unique ID generation"
-  },
-  "development": {
-    "typescript": "Type safety",
-    "tsx": "TypeScript execution",
-    "jest": "Testing framework",
-    "@types/*": "TypeScript definitions"
-  }
-}
-```
-
-**Note**: This project does NOT use canvas, sharp, or heavy image processing libraries. QR codes are generated as lightweight data URLs or SVG.
 
 ---
 
@@ -806,116 +746,6 @@ npx prisma migrate deploy
 # Start production server
 npm start
 ```
-
----
-
-## 🚀 Deploy to Render
-
-### Option 1: One-Click Deploy
-
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/blaze308/codegate-backend)
-
-### Option 2: Manual Deployment
-
-#### Prerequisites
-
-1. **Render Account** - Sign up at [render.com](https://render.com)
-2. **PostgreSQL Database** - Create a PostgreSQL instance on Render
-3. **GitHub Repository** - Fork or clone this repository
-
-#### Step-by-Step Deployment
-
-1. **Create PostgreSQL Database**
-
-   ```bash
-   # In Render Dashboard:
-   # 1. Click "New +" → "PostgreSQL"
-   # 2. Set database name: codegate-db
-   # 3. Choose region: Oregon (recommended)
-   # 4. Select plan: Free (for development)
-   ```
-
-2. **Deploy Web Service**
-
-   ```bash
-   # In Render Dashboard:
-   # 1. Click "New +" → "Web Service"
-   # 2. Connect your GitHub repository
-   # 3. Configure settings:
-   #    - Name: codegate-backend-api
-   #    - Region: Oregon
-   #    - Build Command: npm ci && npm run build
-   #    - Start Command: npm start
-   ```
-
-3. **Environment Variables**
-
-   Set these in your Render service dashboard:
-
-   ```bash
-   NODE_ENV=production
-   PORT=3000
-   TRUST_PROXY=true
-   ALLOWED_ORIGINS=https://your-frontend-domain.com
-   RATE_LIMIT_WINDOW_MS=900000
-   RATE_LIMIT_MAX_REQUESTS=100
-   JWT_SECRET=your_super_secure_jwt_secret_here
-   JWT_EXPIRES_IN=7d
-
-   # DATABASE_URL is automatically set when you connect PostgreSQL
-   ```
-
-4. **Connect Database**
-
-   ```bash
-   # In your web service settings:
-   # 1. Go to "Environment" tab
-   # 2. Click "Add Environment Variable"
-   # 3. Connect your PostgreSQL database
-   # 4. DATABASE_URL will be automatically added
-   ```
-
-5. **Custom Domain (Optional)**
-   ```bash
-   # In service settings:
-   # 1. Go to "Settings" tab
-   # 2. Add custom domain: api.your-domain.com
-   # 3. Configure DNS CNAME record
-   ```
-
-#### Infrastructure as Code
-
-Use the included `render.yaml` for automated deployments:
-
-```yaml
-# render.yaml is already configured in this repository
-# Simply connect your repo to Render and it will use this config
-```
-
-#### Production Checklist
-
-- ✅ **Database Connected** - PostgreSQL instance linked
-- ✅ **Environment Variables** - All required vars set
-- ✅ **Custom Domain** - Optional but recommended
-- ✅ **SSL Certificate** - Automatically provided by Render
-- ✅ **Health Checks** - Configured in Dockerfile
-- ✅ **Auto-Deploy** - Connected to GitHub branch
-
-#### Monitoring & Maintenance
-
-```bash
-# View logs
-render logs --service=codegate-backend-api
-
-# Check service status
-render status --service=codegate-backend-api
-
-# Run database migrations manually (if needed)
-render shell --service=codegate-backend-api
-npm run db:migrate
-```
-
-**🌐 Your API will be available at:** `https://your-service-name.onrender.com`
 
 ---
 

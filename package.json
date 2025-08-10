@@ -1,15 +1,18 @@
 {
-  "name": "qrcode-generator-backend",
+  "name": "codegate-backend",
   "version": "1.0.0",
-  "description": "QR Code Generator Backend API",
+  "description": "CodeGate Events & Ticketing API with QR Code Integration",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "npm run db:migrate && node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix"
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "postinstall": "npm run db:generate"
   },
   "keywords": [
     "qrcode",
@@ -44,7 +47,6 @@
     "@types/qrcode": "^1.5.5",
     "@types/uuid": "^9.0.7",
     "bcryptjs": "^2.4.3",
-    "canvas": "^3.1.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
@@ -54,7 +56,6 @@
     "multer": "^1.4.5-lts.1",
     "prisma": "^5.7.0",
     "qrcode": "^1.5.3",
-    "sharp": "^0.34.2",
     "uuid": "^9.0.1"
   }
 }
