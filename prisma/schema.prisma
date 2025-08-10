@@ -1,0 +1,254 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  organizedEvents Event[]     @relation("EventOrganizer")
+  tickets         Ticket[]
+  attendances     Attendee[]
+  checkIns        CheckIn[]   @relation("CheckInStaff")
+
+  @@map("users")
+}
+
+model Event {
+  id               String      @id @default(uuid())
+  title            String
+  description      String
+  category         EventCategory
+  eventDate        DateTime    // Main event date
+  startTime        String      // Start time (e.g., "2:00 PM", "14:00")
+  endTime          String?     // End time (optional)
+  capacity         Int
+  currentAttendees Int         @default(0)
+  ticketPrice      Float       @default(0)
+  currency         String      @default("USD")
+  status           EventStatus @default(DRAFT)
+  qrCode           String?
+  images           String[]
+  tags             String[]
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  // Wedding/Party specific fields
+  coupleName       String?     // For weddings: "John & Jane"
+  hostName         String?     // For parties: host name
+  dressCode        String?     // Dress code requirements
+  specialInstructions String?  // Special instructions for guests
+  giftRegistry     String?     // Gift registry information
+  rsvpDeadline     DateTime?   // RSVP deadline
+  isPlusOneAllowed Boolean     @default(false)
+  mealPreferences  String[]    // Meal options available
+  
+  // Location fields
+  venue        String
+  address      String
+  city         String
+  state        String
+  country      String
+  zipCode      String
+  latitude     Float?
+  longitude    Float?
+
+  // Relations
+  organizerId String
+  organizer   User       @relation("EventOrganizer", fields: [organizerId], references: [id])
+  tickets     Ticket[]
+  attendees   Attendee[]
+  checkIns    CheckIn[]
+  segments    EventSegment[]  // Event segments (ceremony, reception, etc.)
+  vendors     Vendor[]        // Event vendors (photographer, caterer, etc.)
+
+  @@map("events")
+}
+
+model Ticket {
+  id          String       @id @default(uuid())
+  qrCode      String       @unique
+  ticketType  TicketType
+  price       Float
+  status      TicketStatus @default(ACTIVE)
+  purchasedAt DateTime     @default(now())
+  validUntil  DateTime
+
+  // Relations
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+
+  // One ticket can have one attendee record
+  attendee Attendee?
+  checkIns CheckIn[]
+
+  @@map("tickets")
+}
+
+model Attendee {
+  id           String    @id @default(uuid())
+  checkedIn    Boolean   @default(false)
+  checkedInAt  DateTime?
+  registeredAt DateTime  @default(now())
+  
+  // Wedding/Party specific fields
+  mealPreference String?  // Dietary preferences/meal choice
+  hasPlusOne     Boolean  @default(false)
+  plusOneName    String?  // Name of plus one guest
+  specialNeeds   String?  // Special accommodations needed
+  tableNumber    Int?     // Assigned table number
+  rsvpStatus     String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
+
+  // Relations
+  eventId  String
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User   @relation(fields: [userId], references: [id])
+  ticketId String @unique
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@map("attendees")
+}
+
+model CheckIn {
+  id          String   @id @default(uuid())
+  qrCode      String
+  checkedInAt DateTime @default(now())
+  location    String?
+
+  // Relations
+  eventId      String
+  event        Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  ticketId     String
+  ticket       Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  checkedInBy  String
+  staff        User   @relation("CheckInStaff", fields: [checkedInBy], references: [id])
+
+  @@map("check_ins")
+}
+
+model EventSegment {
+  id              String   @id @default(uuid())
+  eventDetail     String   // Description of the segment (e.g., "Wedding Ceremony", "Reception Dinner")
+  performedBy     String   // Who's performing/leading (e.g., "Pastor John", "DJ Mike", "MC Sarah")
+  durationMinutes Int      // Duration in minutes
+  startTime       DateTime // Start time of this segment
+  endTime         DateTime // End time (calculated from startTime + duration)
+  order           Int      // Order of segment in the event
+  notes           String?  // Additional notes for this segment
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("event_segments")
+}
+
+model Vendor {
+  id            String                @id @default(uuid())
+  name          String                // Vendor name
+  serviceType   String                // Type of service (e.g., "Photography", "Catering", "Music")
+  contactNumber String?               // Phone number
+  email         String?               // Email address
+  website       String?               // Website URL
+  socialMedia   Json?                 // Social media links as JSON
+  notes         String?               // Additional notes about the vendor
+  status        VendorStatus          @default(CONFIRMED)
+  paymentStatus VendorPaymentStatus   @default(PENDING)
+  contractSigned Boolean              @default(false)
+  totalAmount   Float?                // Total amount for services
+  paidAmount    Float                 @default(0)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  // Relations
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("vendors")
+}
+
+// Enums
+enum EventCategory {
+  WEDDING
+  RECEPTION
+  ENGAGEMENT_PARTY
+  BIRTHDAY_PARTY
+  ANNIVERSARY
+  BABY_SHOWER
+  BRIDAL_SHOWER
+  GRADUATION
+  HOLIDAY_PARTY
+  CORPORATE_EVENT
+  BUSINESS_MEETING
+  CONFERENCE
+  SEMINAR
+  WORKSHOP
+  NETWORKING
+  PRODUCT_LAUNCH
+  TEAM_BUILDING
+  COMPANY_RETREAT
+  BOARD_MEETING
+  TRAINING_SESSION
+  REUNION
+  OTHER
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  ACTIVE
+  CANCELLED
+  COMPLETED
+  POSTPONED
+}
+
+enum TicketType {
+  GUEST
+  PLUS_ONE
+  FAMILY
+  CHILD
+  VIP
+  VENDOR
+  STAFF
+}
+
+enum TicketStatus {
+  ACTIVE
+  USED
+  EXPIRED
+  CANCELLED
+  REFUNDED
+}
+
+enum VendorStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum VendorPaymentStatus {
+  PENDING
+  PARTIAL
+  PAID
+  OVERDUE
+  REFUNDED
+}
