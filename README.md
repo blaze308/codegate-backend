@@ -43,6 +43,72 @@ CodeGate is a **free-to-use events and ticketing API** designed for hosts to cre
 
 ---
 
+## 📱 Recommended User Flows
+
+### 🏠 **Host Flow** - Create and Manage Events
+
+```
+1. Initial Screen → Select "I'm a Host"
+2. Create Event Form → Fill event details (POST /api/events)
+3. Event Created → Display success + event QR code
+4. Share QR Code → Print/send event QR to guests
+5. Event Management → View tickets, check-ins, analytics
+```
+
+**Host Features:**
+
+- ✅ Create events with all details
+- ✅ Generate shareable event QR codes
+- ✅ View guest list and check-in status
+- ✅ Manage event segments and vendors
+- ✅ Real-time attendance tracking
+
+### 👥 **Guest Flow** - Discover and Join Events
+
+```
+1. Initial Screen → Select "I'm a Guest"
+2. Scan QR Code → Camera scans event QR code
+3. Event Brochure → Beautiful event details page
+4. Register for Event → Fill guest info + purchase ticket
+5. Get Ticket QR → Receive ticket with QR code for check-in
+6. Event Day → Scan ticket QR at venue entrance
+```
+
+**Guest Features:**
+
+- ✅ Scan event QR codes to discover events
+- ✅ View beautiful event details (event brochure)
+- ✅ Easy registration with just name/email/phone
+- ✅ Receive ticket QR codes instantly
+- ✅ Quick check-in at event entrance
+
+### 📱 **Event Brochure** - Public Event Details
+
+**Endpoint:** `GET /api/events/:id` _(serves as event brochure)_
+
+When guests scan the event QR code, they see:
+
+- 🎉 **Event Title & Description**
+- 📅 **Date, Time & Location**
+- 🏠 **Host Information**
+- 🎫 **Ticket Price & Availability**
+- 👔 **Dress Code & Special Instructions**
+- 🍽️ **Meal Options & Dietary Preferences**
+- 🎁 **Gift Registry Links** (for weddings)
+- ✨ **Event Photos & Gallery**
+
+### 🔄 **Complete Event Lifecycle**
+
+```
+HOST CREATES EVENT → GENERATES QR → SHARES WITH GUESTS
+                                         ↓
+GUESTS SCAN QR → VIEW EVENT BROCHURE → REGISTER & GET TICKETS
+                                         ↓
+EVENT DAY → GUESTS SCAN TICKET QR → AUTOMATIC CHECK-IN → PARTY! 🎉
+```
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -72,6 +138,30 @@ npm run dev
 ```
 
 **🌐 Server runs at:** `http://localhost:3000`
+
+---
+
+## 🎫 Event QR Code Format
+
+For the **event QR codes** that guests scan, we recommend encoding the event URL:
+
+```
+https://your-frontend-domain.com/events/{EVENT_ID}
+```
+
+Or for API-direct scanning:
+
+```
+event:{EVENT_ID}
+```
+
+**Example QR Content:**
+
+```
+event:123e4567-e89b-12d3-a456-426614174000
+```
+
+When scanned, this triggers a call to `GET /api/events/123e4567-e89b-12d3-a456-426614174000` to show the event brochure.
 
 ---
 
