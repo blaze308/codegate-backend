@@ -7,7 +7,7 @@ import eventRoutes from "./routes/events";
 import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT || "3000", 10);
 
 // Security middleware
 app.use(helmet());
@@ -39,7 +39,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // Routes
 app.get("/", (req: Request, res: Response) => {
   res.json({
-    message: "🔳 QR Code Generator API",
+    message: "🎫 CodeGate Events & Ticketing API",
     version: "1.0.0",
     timestamp: new Date().toISOString(),
     endpoints: {
@@ -80,10 +80,12 @@ app.use("*", (req: Request, res: Response) => {
   });
 });
 
+// CRITICAL: Bind to all interfaces for Render deployment
 app.listen(PORT, () => {
-  console.log(`🚀 QR Code Generator API running on port ${PORT}`);
+  console.log(`🚀 CodeGate Events API running on port ${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`🔗 API Documentation: http://localhost:${PORT}/`);
+  console.log(`🌍 Server accessible on all interfaces`);
+  console.log(`🔗 Health check: /health`);
 });
 
 export default app;
