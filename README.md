@@ -6,7 +6,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express.js](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
 ![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Jest](https://img.shields.io/badge/Jest-323330?style=for-the-badge&logo=Jest&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
@@ -118,7 +118,7 @@ EVENT DAY → GUESTS SCAN TICKET QR → AUTOMATIC CHECK-IN → PARTY! 🎉
 ### Prerequisites
 
 - **Node.js** 18+
-- **Supabase Account** - Free PostgreSQL database with built-in features
+- **Database** - PostgreSQL database (can use Render PostgreSQL, Railway, or any PostgreSQL provider)
 - **npm** or **yarn**
 
 ### Installation
@@ -130,8 +130,14 @@ cd codegate-backend
 npm install
 
 # Set up environment variables
+# Create .env file with your PostgreSQL database URL
 cp env.example .env
-# Edit .env with your Supabase database URL
+# Edit .env with your actual database credentials
+
+# Example .env content:
+# DATABASE_URL="postgresql://username:password@localhost:5432/codegate_db"
+# NODE_ENV=development
+# PORT=3000
 
 # Set up the database
 npx prisma migrate deploy
@@ -151,7 +157,7 @@ npm run dev
 
 - **⚡ Runtime**: Node.js 18+ with TypeScript
 - **🚀 Framework**: Express.js for REST API
-- **🗄️ Database**: Supabase (PostgreSQL) - Backend-as-a-Service
+- **🗄️ Database**: PostgreSQL with Prisma ORM
 - **🔄 ORM**: Prisma - Type-safe database client
 - **🔐 Authentication**: JWT (JSON Web Tokens)
 - **📱 QR Codes**: qrcode library for generation
@@ -169,7 +175,7 @@ npm run dev
 - **🧪 Testing**: Jest + TypeScript
 - **📦 Package Manager**: npm
 - **🔄 Development**: tsx for hot reloading
-- **🚀 Deployment**: Render (with Supabase backend)
+- **🚀 Deployment**: Render with PostgreSQL
 - **📝 Code Quality**: ESLint + TypeScript strict mode
 
 ### Key Libraries Used
@@ -833,6 +839,7 @@ npm start
    # 2. Set database name: codegate-db
    # 3. Choose region: Oregon (recommended)
    # 4. Select plan: Free (for development)
+   # 5. Note down the Internal Database URL
    ```
 
 2. **Deploy Web Service**
@@ -843,7 +850,7 @@ npm start
    # 2. Connect your GitHub repository
    # 3. Configure settings:
    #    - Name: codegate-backend-api
-   #    - Region: Oregon
+   #    - Region: Oregon (same as database)
    #    - Build Command: npm ci && npm run build
    #    - Start Command: npm start
    ```
@@ -862,17 +869,23 @@ npm start
    JWT_SECRET=your_super_secure_jwt_secret_here
    JWT_EXPIRES_IN=7d
 
-   # DATABASE_URL is automatically set when you connect PostgreSQL
+   # DATABASE_URL - Use the Internal Database URL from your PostgreSQL instance
+   DATABASE_URL=postgresql://username:password@host:port/database_name
    ```
 
 4. **Connect Database**
 
    ```bash
+   # Option 1: Manual Connection
+   # Copy the Internal Database URL from your PostgreSQL service
+   # Add it as DATABASE_URL environment variable in your web service
+
+   # Option 2: Automatic Connection (Recommended)
    # In your web service settings:
    # 1. Go to "Environment" tab
    # 2. Click "Add Environment Variable"
-   # 3. Connect your PostgreSQL database
-   # 4. DATABASE_URL will be automatically added
+   # 3. Select your PostgreSQL database from dropdown
+   # 4. DATABASE_URL will be automatically added and managed
    ```
 
 5. **Custom Domain (Optional)**
@@ -896,10 +909,77 @@ Use the included `render.yaml` for automated deployments:
 
 - ✅ **Database Connected** - PostgreSQL instance linked
 - ✅ **Environment Variables** - All required vars set
+- ✅ **Migrations Applied** - Database schema updated
 - ✅ **Custom Domain** - Optional but recommended
 - ✅ **SSL Certificate** - Automatically provided by Render
-- ✅ **Health Checks** - Configured in Dockerfile
+- ✅ **Health Checks** - Available at `/health` endpoint
 - ✅ **Auto-Deploy** - Connected to GitHub branch
+
+#### Environment Variables Reference
+
+| Variable                  | Required | Default     | Description                             |
+| ------------------------- | -------- | ----------- | --------------------------------------- |
+| `DATABASE_URL`            | ✅       | -           | PostgreSQL connection string            |
+| `NODE_ENV`                | ✅       | development | Environment (production/development)    |
+| `PORT`                    | ✅       | 3000        | Server port                             |
+| `TRUST_PROXY`             | ⚠️       | false       | Set to `true` for production            |
+| `ALLOWED_ORIGINS`         | ⚠️       | localhost   | Comma-separated list of allowed origins |
+| `RATE_LIMIT_WINDOW_MS`    | ❌       | 900000      | Rate limit window (15 minutes)          |
+| `RATE_LIMIT_MAX_REQUESTS` | ❌       | 100         | Max requests per window                 |
+| `JWT_SECRET`              | ❌       | -           | JWT signing secret (for future auth)    |
+| `JWT_EXPIRES_IN`          | ❌       | 7d          | JWT expiration time                     |
+
+**Legend:** ✅ Required | ⚠️ Required in Production | ❌ Optional
+
+#### Troubleshooting Common Issues
+
+**🔧 Database Connection Error (P1001)**
+
+If you see: `Error: P1001: Can't reach database server`
+
+1. **Check Database URL Format:**
+
+   ```bash
+   # Correct format for Render PostgreSQL:
+   DATABASE_URL=postgresql://username:password@host:port/database_name
+
+   # Example:
+   DATABASE_URL=postgresql://codegate_user:password@dpg-abc123-a.oregon-postgres.render.com:5432/codegate_db
+   ```
+
+2. **Use Internal Database URL:**
+
+   - In Render Dashboard → PostgreSQL service → Info tab
+   - Copy the **Internal Database URL** (not External)
+   - Internal URLs work within Render's network
+
+3. **Verify Environment Variables:**
+
+   ```bash
+   # In your web service:
+   # Environment tab → Check DATABASE_URL is set correctly
+   ```
+
+4. **Check Database Status:**
+   - Ensure PostgreSQL service is "Available"
+   - Database and web service should be in same region
+
+**🔧 Migration Errors**
+
+If migrations fail during deployment:
+
+1. **Manual Migration:**
+
+   ```bash
+   # Connect to your service shell
+   render shell --service=codegate-backend-api
+   npm run db:migrate
+   ```
+
+2. **Reset Database (Development only):**
+   ```bash
+   npm run db:reset
+   ```
 
 #### Monitoring & Maintenance
 
@@ -913,6 +993,10 @@ render status --service=codegate-backend-api
 # Run database migrations manually (if needed)
 render shell --service=codegate-backend-api
 npm run db:migrate
+
+# Check database connection
+render shell --service=codegate-backend-api
+npx prisma db pull
 ```
 
 **🌐 Your API will be available at:** `https://your-service-name.onrender.com`

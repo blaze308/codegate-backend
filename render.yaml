@@ -1,0 +1,39 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: codegate-db
+    plan: free
+    databaseName: codegate_db
+    user: codegate_user
+    region: oregon
+
+  # Web Service
+  - type: web
+    name: codegate-backend-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: TRUST_PROXY
+        value: true
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: ALLOWED_ORIGINS
+        value: https://your-frontend-domain.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: codegate-db
+          property: connectionString
