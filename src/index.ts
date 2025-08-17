@@ -82,7 +82,7 @@ app.use("*", (req: Request, res: Response) => {
 
 // CRITICAL: Bind to all interfaces for Render deployment
 app.listen(PORT, () => {
-  console.log(`🚀 CodeGate Events API running on port ${PORT}`);
+  console.log(`🚀 CodeGate Events API running on port localhost:${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV || "development"}`);
   console.log(`🌍 Server accessible on all interfaces`);
   console.log(`🔗 Health check: /health`);
